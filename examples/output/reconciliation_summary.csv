@@ -1,0 +1,3 @@
+dataset,rows_in,valid,rejected,source_count,target_count,match_rate_pct,passed
+orders,12,4,8,4,4,100.0,True
+inventory,6,4,2,4,4,100.0,True

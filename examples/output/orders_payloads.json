@@ -1,0 +1,74 @@
+[
+  {
+    "external_id": "SO-50001",
+    "customer": {
+      "external_id": "ERP-C-1001"
+    },
+    "line_items": [
+      {
+        "sku": "PIP-200",
+        "quantity": 4,
+        "price": {
+          "amount": "129.50",
+          "currency": "USD"
+        }
+      }
+    ],
+    "order_status": "pending",
+    "created_at": "2026-02-03T09:15:00"
+  },
+  {
+    "external_id": "SO-50002",
+    "customer": {
+      "external_id": "ERP-C-1002"
+    },
+    "line_items": [
+      {
+        "sku": "GLV-100",
+        "quantity": 50,
+        "price": {
+          "amount": "8.25",
+          "currency": "USD"
+        }
+      }
+    ],
+    "order_status": "processing",
+    "created_at": "2026-02-03T10:02:00"
+  },
+  {
+    "external_id": "SO-50003",
+    "customer": {
+      "external_id": "ERP-C-1003"
+    },
+    "line_items": [
+      {
+        "sku": "CEN-010",
+        "quantity": 1,
+        "price": {
+          "amount": "2450.00",
+          "currency": "CAD"
+        }
+      }
+    ],
+    "order_status": "shipped",
+    "created_at": "2026-02-03T11:47:00"
+  },
+  {
+    "external_id": "SO-50010",
+    "customer": {
+      "external_id": "ERP-C-1008"
+    },
+    "line_items": [
+      {
+        "sku": "TUB-050",
+        "quantity": 200,
+        "price": {
+          "amount": "3.10",
+          "currency": "USD"
+        }
+      }
+    ],
+    "order_status": "processing",
+    "created_at": "2026-02-05T10:15:00"
+  }
+]

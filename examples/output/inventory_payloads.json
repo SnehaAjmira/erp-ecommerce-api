@@ -1,0 +1,34 @@
+[
+  {
+    "sku": "PIP-200",
+    "location_id": "HOU-01",
+    "inventory": {
+      "quantity": 96
+    },
+    "updated_at": "2026-02-05T06:00:00"
+  },
+  {
+    "sku": "GLV-100",
+    "location_id": "HOU-01",
+    "inventory": {
+      "quantity": 3300
+    },
+    "updated_at": "2026-02-05T06:00:00"
+  },
+  {
+    "sku": "BAL-300",
+    "location_id": "DAL-02",
+    "inventory": {
+      "quantity": 15
+    },
+    "updated_at": "2026-02-05T06:00:00"
+  },
+  {
+    "sku": "PIP-200",
+    "location_id": "DAL-02",
+    "inventory": {
+      "quantity": 50
+    },
+    "updated_at": "2026-02-05T06:00:00"
+  }
+]

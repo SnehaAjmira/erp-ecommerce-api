@@ -1,124 +1,87 @@
-# ERP-to-eCommerce API Integration
+# ERP-to-eCommerce Integration: Data Validation Layer
 
-> Bidirectional ERP and eCommerce platform integration achieving 95% data accuracy across order and inventory datasets — built at Apex Supply Company.
->
-> ![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python) ![REST API](https://img.shields.io/badge/REST-API-orange) ![SQL](https://img.shields.io/badge/SQL-Server-red) ![Status](https://img.shields.io/badge/status-complete-green)
->
-> ---
->
-> ## 📌 Project Overview
->
-> This integration synchronizes order and inventory data between a legacy ERP system and a modern eCommerce platform. It replaced a manual, error-prone data entry process that caused order fulfillment delays and inventory discrepancies. The solution uses REST APIs with robust error handling, data validation checkpoints, and UAT documentation.
->
-> **Key outcomes:**
-> - 95% accuracy across order and inventory datasets
-> - - Eliminated ~20 hours/week of manual data entry
->   - - Enabled real-time inventory visibility on the eCommerce platform
->     - - Delivered end-user training documentation for business and technical stakeholders
->      
->       - ---
->
-> ## 🏗️ Integration Architecture
->
-> ```
-> ERP System (Source of Truth)
->     │
->     ├── Order Events (new, updated, cancelled)
->     ├── Inventory Updates (stock levels, adjustments)
->     │
->     ▼
-> Integration Middleware (Python)
->     ├── Data Validation Checkpoints
->     ├── Error Handling & Retry Logic
->     ├── Field Mapping & Transformation
->     │
->     ▼
-> eCommerce Platform API (Target)
->     ├── Product/Inventory API
->     └── Order Management API
-> ```
->
-> ---
->
-> ## 📁 Project Structure
->
-> ```
-> erp-ecommerce-api/
-> ├── src/
-> │   ├── erp_client.py           # ERP system API client
-> │   ├── ecommerce_client.py     # eCommerce platform API client
-> │   ├── sync_engine.py          # Core synchronization logic
-> │   ├── validators.py           # Data validation checkpoints
-> │   └── error_handler.py        # Retry logic and error logging
-> ├── tests/
-> │   ├── test_sync_engine.py
-> │   └── test_validators.py
-> ├── docs/
-> │   ├── data_mapping.md         # ERP to eCommerce field mappings
-> │   ├── uat_test_cases.md       # UAT test plan and results
-> │   └── training_guide.md       # End-user training documentation
-> ├── config/
-> │   └── settings.yaml           # Integration configuration
-> ├── requirements.txt
-> └── README.md
-> ```
->
-> ---
->
-> ## 🔧 Tech Stack
->
-> | Layer | Technology |
-> |---|---|
-> | Language | Python 3.10 |
-> | HTTP Client | requests / httpx |
-> | Data Validation | pydantic |
-> | Error Handling | Custom retry w/ exponential backoff |
-> | Testing | pytest |
-> | Documentation | Markdown |
->
-> ---
->
-> ## 📋 Data Mapping (Sample)
->
-> | ERP Field | eCommerce Field | Transformation |
-> |---|---|---|
-> | `ITEM_CODE` | `sku` | Direct mapping |
-> | `QTY_ON_HAND` | `inventory.quantity` | Integer cast |
-> | `UNIT_PRICE` | `price.amount` | 2 decimal places |
-> | `ORDER_DATE` | `created_at` | ISO 8601 format |
-> | `CUSTOMER_ID` | `customer.external_id` | Prefix + ID |
-> | `STATUS_CODE` | `order_status` | Status lookup table |
->
-> ---
->
-> ## ✅ Data Validation Checkpoints
->
-> 1. **Schema Validation** — Pydantic models enforce field types and required fields
-> 2. 2. **Business Rules** — Price > 0, quantity >= 0, valid status codes only
->    3. 3. **Duplicate Detection** — Check for existing records before insert/update
->       4. 4. **Referential Integrity** — Validate customer and product IDs exist in target
->          5. 5. **Post-sync Reconciliation** — Row count and checksum comparison after each batch
->            
->             6. ---
->            
->             7. ## 🚀 Getting Started
->            
->             8. ```bash
-> git clone https://github.com/SnehaAjmira/erp-ecommerce-api.git
-> cd erp-ecommerce-api
-> pip install -r requirements.txt
->
-> # Configure credentials
-> cp config/settings.yaml.example config/settings.yaml
-> # Edit settings.yaml with ERP and eCommerce API credentials
->
-> # Run full sync
-> python src/sync_engine.py --mode full
->
-> # Run incremental sync (last 24h)
-> python src/sync_engine.py --mode incremental --hours 24
-> ```
->
-> ---
->
-> *Built by [Sneha Ajmira](https://linkedin.com/in/contactsnehaajmira) | Business Systems Analyst @ Apex Supply Company*
+The validation and mapping layer for an ERP-to-eCommerce order and inventory sync. It checks every record against schema and business rules, quarantines failures with a reason, maps valid records to the target API format, and reconciles counts after each batch.
+
+| | |
+|---|---|
+| **Domain** | Systems integration, order management, inventory |
+| **Tools** | Python 3, pydantic v2 |
+| **Techniques** | Schema validation, business rule checks, duplicate detection, field mapping, post-sync reconciliation |
+| **Contents** | 3 modules, sample ERP extracts, generated outputs, unit tests |
+
+---
+
+## 1. Data Flow
+
+```
+ERP extract (CSV)
+    -> 1. Duplicate key check (order_id + sku, sku + warehouse_id)
+    -> 2. Schema and business rules (pydantic models)
+    -> 3a. Rejected rows + reason  -> *_rejected.csv   (business review)
+    -> 3b. Valid rows -> field mapping -> *_payloads.json (eCommerce API)
+    -> 4. Reconciliation (source vs target counts) -> reconciliation_summary.csv
+```
+
+## 2. Validation Rules
+
+| Dataset | Rule |
+|---|---|
+| Orders | `order_id`, `customer_id`, `sku` required |
+| Orders | `quantity` greater than 0; `unit_price` greater than 0, 2 decimals |
+| Orders | `status_code` in NEW, PROCESSING, SHIPPED, DELIVERED, CANCELLED, RETURNED (case-insensitive) |
+| Orders | `currency` in USD, EUR, GBP, CAD; `order_date` must be a valid datetime |
+| Inventory | `quantity_on_hand` and `quantity_reserved` not negative |
+| Inventory | `quantity_reserved` cannot exceed `quantity_on_hand` |
+| Both | No duplicate business keys within a batch |
+
+## 3. Field Mapping
+
+| ERP field | eCommerce field | Transformation |
+|---|---|---|
+| `order_id` | `external_id` | Direct |
+| `customer_id` | `customer.external_id` | Prefix `ERP-` |
+| `unit_price`, `currency` | `line_items[].price` | 2 decimals, upper-case currency |
+| `status_code` | `order_status` | Lookup table (for example DELIVERED to completed) |
+| `order_date` | `created_at` | ISO 8601 |
+| `quantity_on_hand - quantity_reserved` | `inventory.quantity` | Available-to-sell calculation |
+
+## 4. Example Run
+
+Input: `examples/erp_orders.csv` (12 rows) and `examples/erp_inventory.csv` (6 rows), seeded with common ERP data defects.
+
+| Dataset | Rows in | Valid | Rejected | Reasons |
+|---|---:|---:|---:|---|
+| Orders | 12 | 4 | 8 | Duplicate key (2), zero quantity, negative price, missing customer, unknown status, unsupported currency, invalid date |
+| Inventory | 6 | 4 | 2 | Reserved exceeds on hand, negative on hand |
+
+All outputs are in `examples/output/`.
+
+## 5. How to Run
+
+```bash
+pip install -r requirements.txt
+python src/run_validation.py --orders examples/erp_orders.csv --inventory examples/erp_inventory.csv --out examples/output
+python -m unittest discover -s tests -v
+```
+
+## 6. Repository Structure
+
+```
+erp-ecommerce-api/
+├── src/
+│   ├── validators.py        # pydantic models, batch validation, duplicates, reconciliation
+│   ├── field_mapping.py     # ERP to eCommerce payload mapping
+│   └── run_validation.py    # CLI: validate, map, quarantine, reconcile
+├── examples/
+│   ├── erp_orders.csv
+│   ├── erp_inventory.csv
+│   └── output/
+├── tests/test_validators.py
+└── requirements.txt
+```
+
+## 7. Scope
+
+This repository contains the validation and mapping layer only. API clients, scheduling, and retry logic depend on the specific ERP and eCommerce platforms and are not included.
+
+Author: [Sneha Ajmira](https://linkedin.com/in/contactsnehaajmira)

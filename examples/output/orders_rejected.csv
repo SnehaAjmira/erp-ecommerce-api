@@ -1,0 +1,9 @@
+order_id,customer_id,sku,quantity,unit_price,order_date,status_code,currency,validation_error
+SO-50009,C-1007,CEN-010,1,2450.00,2026-02-05T09:00:00,NEW,USD,duplicate key in batch
+SO-50009,C-1007,CEN-010,1,2450.00,2026-02-05T09:00:00,NEW,USD,duplicate key in batch
+SO-50004,C-1004,TUB-050,0,3.10,2026-02-03T12:30:00,NEW,USD,quantity: Input should be greater than 0
+SO-50005,C-1001,PIP-200,2,-129.50,2026-02-04T08:05:00,NEW,USD,unit_price: Input should be greater than 0
+SO-50006,,BAL-300,1,899.00,2026-02-04T09:40:00,NEW,USD,customer_id: Input should be a valid string
+SO-50007,C-1005,GLV-100,20,8.25,2026-02-04T13:22:00,BACKORDER,USD,"status_code: Value error, unknown status 'BACKORDER'"
+SO-50008,C-1006,PIP-200,3,129.50,2026-02-04T14:10:00,DELIVERED,JPY,"currency: Value error, unsupported currency 'JPY'"
+SO-50011,C-1002,BAL-300,1,899.00,not-a-date,NEW,USD,"order_date: Input should be a valid datetime or date, invalid character in year"

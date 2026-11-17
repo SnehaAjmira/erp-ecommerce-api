@@ -1,0 +1,3 @@
+sku,warehouse_id,quantity_on_hand,quantity_reserved,reorder_point,last_updated,validation_error
+CEN-010,HOU-01,6,8,2,2026-02-05T06:00:00,"record: Value error, quantity_reserved exceeds quantity_on_hand"
+TUB-050,HOU-01,-15,0,500,2026-02-05T06:00:00,quantity_on_hand: Input should be greater than or equal to 0
